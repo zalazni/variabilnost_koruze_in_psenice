@@ -1,0 +1,1 @@
+# variabilnost-koruze-in-p-enice
