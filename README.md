@@ -1,1 +1,1 @@
-# variabilnost-koruze-in-p-enice
+# variabilnost_koruze_in_psenice
