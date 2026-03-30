@@ -10,5 +10,5 @@ V kodi pca_analiza_spremenljivk_v5.r se opravijo izračuni:
 - prikaz trendov in korelacije pridelka z glavnimi komponentami, PCA analiza za obdobje 1981-2010 (slike v mapi faktorji)
 
 V kodi kazalniki_projekcije.r se opravijo izračuni:
-- projekcije kazalnikov in faktorjev (kazalniki_71-00_rcp45.rds, kazalniki_71-00_rcp85.rds, kazalniki_41-70_rcp45.rds, kazalniki_41-70_rcp85.rds, kazalniki_11-40_rcp45.rds, kazalniki_11-40_rcp45.rds),
-- risanje vseh kart v obliki min, me, max modelov (slike v mapi karte)
+- projekcije kazalnikov in faktorjev za koruzo (kazalniki_71-00_rcp45.rds, kazalniki_71-00_rcp85.rds, kazalniki_41-70_rcp45.rds, kazalniki_41-70_rcp85.rds),
+- risanje vseh kart v obliki min, me, max modelov za koruzo (slike v mapi karte)
