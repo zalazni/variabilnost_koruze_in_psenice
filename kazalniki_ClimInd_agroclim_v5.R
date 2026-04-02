@@ -1,4 +1,4 @@
-setwd("C:/Users/ZalaZn/OneDrive - Univerza v Ljubljani/CRP kazalniki 2024") # služba
+setwd("C:/Users/ZalaZn/OneDrive - Univerza v Ljubljani/projekti/CRP kazalniki 2024") # služba
 library(graphics)
 library(ismev)
 library(readxl)
@@ -115,6 +115,8 @@ i = 20
 podatki_percentil_90_tmin<-data.frame(latsi=1,lonsi=1,T90p=1)
 podatki_percentil_99_tmax<-data.frame(latsi=1,lonsi=1,Tx99p=1)
 podatki_percentil_90_tmax<-data.frame(latsi=1,lonsi=1,Tx90p=1)
+podatki_percentil_75_tmean<-data.frame(latsi=1,lonsi=1,T75p=1)
+podatki_percentil_75_rr<-data.frame(latsi=1,lonsi=1,rr75p=1)
 
 
 vsi_podatki <- data.frame()
@@ -269,23 +271,23 @@ for(i in lons1){
       # tn90p
       
       
+      percentil75T<-data.frame(latsi=lat[j],lonsi=lon[i],T75p=as.numeric(quantile(data_temp$Temp,0.75))) # tega ne rabim za proj.   OD TUKAJ
+      podatki_percentil_75_tmean<-rbind(podatki_percentil_75_tmean,percentil75T) # tega ne rabim za proj.
+      podatki_percentil_75_tmean2<- subset(podatki_percentil_75_tmean, as.numeric(latsi)==lat[j]  & podatki_percentil_75_tmean$lon==as.numeric(lon[i]))
       
+      percentil75rr<-data.frame(latsi=lat[j],lonsi=lon[i],rr75p=as.numeric(quantile(data_pad$pad,0.75))) # tega ne rabim za proj.
+      podatki_percentil_75_rr<-rbind(podatki_percentil_75_rr,percentil75rr) # tega ne rabim za proj.
+      podatki_percentil_75_rr2<- subset(podatki_percentil_75_rr, as.numeric(latsi)==lat[j]  & podatki_percentil_75_rr$lon==as.numeric(lon[i]))
       
       data_wwd <- data.frame(date = data_tmax$Date, Tmean = data_temp$Temp, RR = data_pad$pad)
       warm_wet_days <- function(data) {
-        data <- data %>% mutate(day_of_year = yday(as.Date(data$date)))
-        percentiles <- data %>%
-          group_by(day_of_year) %>%
-          summarize(Tmean75th = quantile(Tmean, 0.75, na.rm = TRUE),
-            RR75th = quantile(RR[RR > 0], 0.75, na.rm = TRUE), .groups = "drop")
-        data <- data %>% left_join(percentiles, by = "day_of_year")
-        data <- data %>% mutate(warm_wet = (Tmean > Tmean75th) & (RR > RR75th))
+        data <- data %>% mutate(warm_wet = (Tmean > podatki_percentil_75_tmean2$T75p) & (RR > podatki_percentil_75_rr2$rr75p))
         data$year <- format(as.POSIXct(data$date, format="%m/%d/%Y"), "%Y")
         warm_wet_days_count <- data %>%
           filter(warm_wet) %>%
           group_by(year) %>%
           summarize(warm_wet_days = n(),
-            .groups = "drop")
+                    .groups = "drop")
         return(warm_wet_days_count)
       }
       WWD <- warm_wet_days(data_wwd)
@@ -464,6 +466,8 @@ for(i in lons1){
 saveRDS(skupni_prag_tmin90p, file = "tn90p_referencno_obdobje.rds")
 saveRDS(skupni_prag_tmax99p, file = "tx99p_referencno_obdobje.rds")
 saveRDS(skupni_prag_tmax90p, file = "tx90p_referencno_obdobje.rds")
+saveRDS(skupni_prag_t75p, file = "t75p_referencno_obdobje.rds")
+saveRDS(skupni_prag_rr75pp, file = "rr75p_referencno_obdobje.rds")
 
 # vsi_podatki = subset(vsi_podatki, select = -c(Year,SPEI_3,year) ) 
 saveRDS(vsi_podatki, file = "kazalniki_OPSI_historical_GS.rds")
@@ -655,23 +659,22 @@ data_et <- data_et %>% filter(meseci >= 4, meseci <= 10)
     Dnevi_32max_anthesis <- left_join(coldest_m_temp[,3],Dnevi_32max_anthesis,by="leto") %>%
       mutate_if(is.numeric,coalesce,0)
     
+    podatki_percentil_75_tmean = readRDS("t75p_referencno_obdobje.rds")
+    podatki_percentil_75_tmean2<- subset(podatki_percentil_75_tmean, as.numeric(latsi)==lat_izbr  & podatki_percentil_75_tmean$lon==as.numeric(lon_izbr))
+    podatki_percentil_75_rr = readRDS("rr75p_referencno_obdobje.rds")
+    podatki_percentil_75_rr2<- subset(podatki_percentil_75_rr, as.numeric(latsi)==lat_izbr  & podatki_percentil_75_rr$lon==as.numeric(lon_izbr))
+    
     data_wwd <- data.frame(date = datum2, Tmean = data_max_min$tpov, RR = data_pad$pad)
     warm_wet_days <- function(data) {
-      data <- data %>% mutate(day_of_year = yday(as.Date(data$date)))
-      percentiles <- data %>%
-        group_by(day_of_year) %>%
-        summarize(Tmean75th = quantile(Tmean, 0.75, na.rm = TRUE),
-                  RR75th = quantile(RR[RR > 0], 0.75, na.rm = TRUE), .groups = "drop")
-      data <- data %>% left_join(percentiles, by = "day_of_year")
-      data <- data %>% mutate(warm_wet = (Tmean > Tmean75th) & (RR > RR75th))
-      data$year <- format(as.POSIXct(datum2, format="%m/%d/%Y"), "%Y")
+      data <- data %>% mutate(warm_wet = (Tmean > podatki_percentil_75_tmean2$T75p) & (RR > podatki_percentil_75_rr2$rr75p))
+      data$year <- format(as.POSIXct(data$date, format="%m/%d/%Y"), "%Y")
       warm_wet_days_count <- data %>%
         filter(warm_wet) %>%
         group_by(year) %>%
         summarize(warm_wet_days = n(),
                   .groups = "drop")
       return(warm_wet_days_count)
-    }
+    }   
     WWD <- warm_wet_days(data_wwd)
     temp_day1 <- data.frame(Year = leta, Month = meseci, Day = dnevi, temp = data_max_min$tpov)
     x<-aggregate(temp ~  Year + Month, temp_day1, FUN = mean, na.rm=TRUE, na.action=na.pass)
@@ -806,6 +809,24 @@ data_et <- data_et %>% filter(meseci >= 4, meseci <= 10)
     vsi_podatki_1 <- rbind(vsi_podatki_1, podatki_tocka)
 
 saveRDS(vsi_podatki_1, file = "kazalniki_Jablje_Rakican_2011-2022_GS.rds")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
