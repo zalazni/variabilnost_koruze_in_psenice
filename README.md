@@ -27,3 +27,5 @@ V kodi pca_analiza_spremenljivk_v6_pšenica.r se opravijo izračuni:
 V kodi kazalniki_projekcije_pšenica.r se opravijo izračuni:
 - projekcije kazalnikov in faktorjev za pšenico (v mapi pšenica datoteke kazalniki_71-00_rcp45.rds, kazalniki_71-00_rcp85.rds, kazalniki_41-70_rcp45.rds, kazalniki_41-70_rcp85.rds),
 - risanje vseh kart v obliki min, me, max modelov za pšenico (slike v mapi karte_psenica)
+
+DOI: https://doi.org/10.5281/zenodo.20342488
